@@ -11,7 +11,8 @@ app = marimo.App(width="medium")
 def _():
     import pandas as pd
     import matplotlib.pyplot as plt
-    return pd, plt
+    import marimo as mo
+    return mo, pd, plt
 
 @app.cell
 def _(pd):
@@ -27,8 +28,7 @@ def _(pd):
     return data, df
 
 @app.cell
-def _(df):
-    import matplotlib.pyplot as plt
+def _(df, plt):
     # Revenue Growth Visualization
     plt.figure(figsize=(6,4))
     plt.bar(["Q1 2025", "Q2 2025"], df.loc[0, ["Q1 2025", "Q2 2025"]], color=["skyblue","lightgreen"])
@@ -36,7 +36,7 @@ def _(df):
     plt.show()
 
 @app.cell
-def _(df):
+def _(df, plt):
     # User Growth Visualization
     plt.figure(figsize=(6,4))
     plt.plot(["Q1 2025","Q2 2025"], df.loc[1,["Q1 2025","Q2 2025"]], marker="o")
@@ -73,6 +73,23 @@ def _():
 def _(summary):
     for k, v in summary.items():
         print(f"{k}: {v}")
+
+# ----------------------------
+# Interactive Slider Example
+# ----------------------------
+@app.cell
+def _(mo, plt):
+    # Slider to project next quarter revenue
+    revenue_slider = mo.ui.slider(2.0, 3.5, step=0.1, value=2.4, label="Projected Q3 Revenue ($M)")
+
+    def plot_projection(value):
+        plt.figure(figsize=(6,4))
+        plt.bar(["Q1 2025","Q2 2025","Q3 2025 (Projected)"], [2.1, 2.4, value], color=["skyblue","lightgreen","orange"])
+        plt.title("Revenue Projection")
+        plt.show()
+
+    mo.vstack([revenue_slider, mo.lazy(plot_projection)(revenue_slider.value)])
+    return plot_projection, revenue_slider
 
 if __name__ == "__main__":
     app.run()
